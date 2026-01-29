@@ -2,6 +2,60 @@
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
+#include <map>
+
+enum class NodeColor {
+    UNVISITED,
+    VISITED,
+    VERIFIED
+};
+
+bool has_reachable_storehouse(const IPackageSender* sender, std::map<const IPackageSender*, NodeColor>& node_colors) {
+    
+    if (node_colors[sender] == NodeColor::VERIFIED) {
+        return true;
+    }
+
+    node_colors[sender] = NodeColor::VISITED;
+
+    if (sender->receiver_preferences_.get_preferences().empty()) {
+        throw std::logic_error("Sender has no receivers defined.");
+    }
+
+    bool does_sender_have_reachable_storehouse = false; 
+
+    for (const auto& [receiver, probability] : sender->receiver_preferences_.get_preferences()) {
+        
+        if (receiver->get_receiver_type() == ReceiverType::STOREHOUSE) {
+            does_sender_have_reachable_storehouse = true;
+        } 
+        else if (receiver->get_receiver_type() == ReceiverType::WORKER) {
+            IPackageReceiver* receiver_ptr = receiver;
+            auto worker_ptr = dynamic_cast<Worker*>(receiver_ptr);
+            auto sendrecv_ptr = dynamic_cast<const IPackageSender*>(worker_ptr);
+
+            if (sendrecv_ptr == sender) {
+                continue;
+            }
+
+            does_sender_have_reachable_storehouse = true; 
+
+            if (node_colors[sendrecv_ptr] == NodeColor::UNVISITED) {
+                has_reachable_storehouse(sendrecv_ptr, node_colors); 
+            }
+        }
+    }
+
+    node_colors[sender] = NodeColor::VERIFIED;
+
+    if (does_sender_have_reachable_storehouse) {
+        return true;
+    } else {
+        throw std::logic_error("Sender has no reachable storehouse.");
+    }
+}
+
+
 
 template <typename Sender>
 void Factory::remove_receiver_links(NodeCollection<Sender>& collection, IPackageReceiver* receiver) {
@@ -31,15 +85,22 @@ void Factory::remove_storehouse(ElementID id) {
 }
 
 bool Factory::is_consistent() {
+    std::map<const IPackageSender*, NodeColor> node_colors;
     for (const auto& ramp : ramps_) {
-        if (ramp.receiver_preferences_.get_preferences().empty()) return false;
+        node_colors[&ramp] = NodeColor::UNVISITED;
     }
-    
     for (const auto& worker : workers_) {
-        if (worker.receiver_preferences_.get_preferences().empty()) return false;
+        node_colors[&worker] = NodeColor::UNVISITED;
     }
-
+    try {
+        for (const auto& ramp : ramps_) {
+            has_reachable_storehouse(&ramp, node_colors);
+        }
+    } catch (const std::logic_error&) {
+        return false;
+    }
     return true;
+    
 }
 
 void Factory::do_deliveries(Time t) {
