@@ -1,1 +1,30 @@
-.idea
+
+/build/
+/CMakeFiles/
+/CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Executables and object files
+*.exe
+*.out
+*.o
+*.obj
+*.pdb
+*.log
+
+# User-specific IDE files
+*.user
+*.suo
+*.VC.db
+*.VC.VC.opendb
+
+# MacOS files
+.DS_Store
+
+# Windows thumbnail cache
+Thumbs.db
+
+# GoogleTest zip folder 
+*.zip
+
