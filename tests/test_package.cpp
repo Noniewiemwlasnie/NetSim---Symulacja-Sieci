@@ -14,7 +14,7 @@ TEST(PackageQueueTest, FifoOrder) {
     queue.push(Package(2));
 
     auto p1 = queue.pop();
-    EXPECT_EQ(p1->get_id(), 1); // Pierwszy wszedł, pierwszy wychodzi
+    EXPECT_EQ(p1->get_id(), 1);
 
     auto p2 = queue.pop();
     EXPECT_EQ(p2->get_id(), 2);
@@ -26,7 +26,7 @@ TEST(PackageQueueTest, LifoOrder) {
     queue.push(Package(2));
 
     auto p1 = queue.pop();
-    EXPECT_EQ(p1->get_id(), 2); // Ostatni wszedł, pierwszy wychodzi (stos)
+    EXPECT_EQ(p1->get_id(), 2);
 
     auto p2 = queue.pop();
     EXPECT_EQ(p2->get_id(), 1);
