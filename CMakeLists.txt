@@ -27,6 +27,8 @@ set(SOURCES
     src/main.cpp
 )
 
-add_executable(netsim ${SOURCES})
+file(GLOB TEST_SOURCES "tests/*.cpp")
+
+add_executable(netsim_test ${LIB_SOURCES} ${TEST_SOURCES})
 
 target_link_libraries(netsim GTest::gtest_main)
