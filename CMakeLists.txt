@@ -22,6 +22,8 @@ set(SOURCES
     src/nodes.cpp
     src/package.cpp
     src/storage_types.cpp
+    src/simulation.cpp
+    src/reports.cpp
     src/main.cpp
 )
 

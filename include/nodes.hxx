@@ -104,6 +104,8 @@ class Worker : public IPackageReceiver, public IPackageSender {
 public:
     Worker(ElementID id, TimeOffset pd, std::unique_ptr<IPackageStockpile> q);
     
+    const std::optional<Package>& get_processing_buffer() const { return processing_buffer_; }
+    
     void receive_package(Package&& p) override;
     ElementID get_id() const override { return id_; }
     ReceiverType get_receiver_type() const override { return ReceiverType::WORKER; }
